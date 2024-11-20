@@ -1,14 +1,21 @@
-import { ReactNode, useState } from 'react'
-import { Links, Meta, Outlet, Scripts, ScrollRestoration } from '@remix-run/react'
+import { ReactNode, useEffect, useState } from 'react'
+import { Links, Meta, Outlet, Scripts, ScrollRestoration, useNavigate } from '@remix-run/react'
 import { NextUIProvider } from '@nextui-org/react'
 import { ThemeProvider as NextThemesProvider } from 'next-themes'
-import { Header } from '~/components'
+import { Header, Toast } from '~/components'
 import { rootLoader } from './loader/root.server'
-// import type { LinksFunction } from '@remix-run/node'
+
+import type { LoaderFunction } from '@remix-run/node'
+import type { Account } from '@prisma/client'
 
 import '~/styles/tailwind.css'
 import '~/styles/main.css'
-import type { LoaderFunction } from '@remix-run/node'
+import 'remixicon/fonts/remixicon.css'
+
+export type RootContext = {
+	setToast: React.Dispatch<React.SetStateAction<{ message: null | string; error?: boolean }>>
+	setAccount: React.Dispatch<React.SetStateAction<Account | null>>
+}
 
 // export const links: LinksFunction = () => [
 // 	{ rel: 'preconnect', href: 'https://fonts.googleapis.com' },
@@ -46,8 +53,9 @@ export function Layout({ children }: { children: React.ReactNode }) {
 }
 
 export function Providers({ children }: { children: ReactNode }) {
+	const navigate = useNavigate()
 	return (
-		<NextUIProvider>
+		<NextUIProvider navigate={navigate}>
 			<NextThemesProvider attribute='class' defaultTheme='dark'>
 				{children}
 			</NextThemesProvider>
@@ -56,13 +64,35 @@ export function Providers({ children }: { children: ReactNode }) {
 }
 
 export default function App() {
+	const [account, setAccount] = useState<Account | null>(null)
 	const [theme, setTheme] = useState('dark')
+	const [toast, setToast] = useState<{
+		message: null | string
+		error?: boolean
+	}>({
+		message: null,
+		error: false,
+	})
+
+	const rootContext: RootContext = { setToast, setAccount }
+
+	useEffect(() => {
+		if (account) {
+			setAccount(account)
+			setToast({
+				message: `Authenticated: ${account.email}`,
+				error: false,
+			})
+		}
+	}, [account])
+
 	return (
 		<Providers>
 			<main className={`${theme} text-foreground bg-background`}>
-				<Header />
+				<Header account={account} />
 				<div className='container mx-auto'>
-					<Outlet />
+					<Outlet context={rootContext} />
+					<Toast message={toast.message} error={toast.error} setToast={setToast} />
 				</div>
 			</main>
 		</Providers>
