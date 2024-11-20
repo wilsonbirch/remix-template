@@ -1,3 +1,3 @@
-# remix-template'
+# main
 
-remix / tailwindcss / nextui / remixicon
+remix-template
