@@ -1,37 +1,33 @@
-import { useState } from 'react';
-import { NextUIProvider } from '@nextui-org/react';
-import { Sidebar } from './components';
-import {
-	Links,
-	LiveReload,
-	Meta,
-	Outlet,
-	Scripts,
-	ScrollRestoration,
-} from '@remix-run/react';
+import { ReactNode, useState } from 'react'
+import { Links, Meta, Outlet, Scripts, ScrollRestoration } from '@remix-run/react'
+import { NextUIProvider } from '@nextui-org/react'
+import { ThemeProvider as NextThemesProvider } from 'next-themes'
+import { Header } from '~/components'
+import { rootLoader } from './loader/root.server'
+// import type { LinksFunction } from '@remix-run/node'
 
-import type { LinksFunction } from '@remix-run/node';
+import '~/styles/tailwind.css'
+import '~/styles/main.css'
+import type { LoaderFunction } from '@remix-run/node'
 
-// CSS imports
-import { cssBundleHref } from '@remix-run/css-bundle';
-import tailwindCss from '~/styles/tailwind.css';
-import mainCss from '~/styles/main.css';
-import remixiconCss from 'remixicon/fonts/remixicon.css';
+// export const links: LinksFunction = () => [
+// 	{ rel: 'preconnect', href: 'https://fonts.googleapis.com' },
+// 	{
+// 		rel: 'preconnect',
+// 		href: 'https://fonts.gstatic.com',
+// 		crossOrigin: 'anonymous',
+// 	},
+// 	{
+// 		rel: 'stylesheet',
+// 		href: 'https://fonts.googleapis.com/css2?family=Inter:ital,opsz,wght@0,14..32,100..900;1,14..32,100..900&display=swap',
+// 	},
+// ]
 
-const styles = [
-	{ rel: 'stylesheet', href: tailwindCss },
-	{ rel: 'stylesheet', href: mainCss },
-	{ rel: 'stylesheet', href: remixiconCss },
-];
+export const loader: LoaderFunction = async ({ request }) => {
+	return rootLoader(request)
+}
 
-export const links: LinksFunction = () => [
-	...(cssBundleHref
-		? [{ rel: 'stylesheet', href: cssBundleHref }, ...styles]
-		: [...styles]),
-];
-
-export default function App() {
-	const [theme, setTheme] = useState('dark');
+export function Layout({ children }: { children: React.ReactNode }) {
 	return (
 		<html lang='en'>
 			<head>
@@ -41,16 +37,34 @@ export default function App() {
 				<Links />
 			</head>
 			<body>
-				<NextUIProvider>
-					<main className={`${theme} text-foreground bg-background`}>
-						<Sidebar />
-						<Outlet />
-					</main>
-				</NextUIProvider>
+				{children}
 				<ScrollRestoration />
 				<Scripts />
-				<LiveReload />
 			</body>
 		</html>
-	);
+	)
+}
+
+export function Providers({ children }: { children: ReactNode }) {
+	return (
+		<NextUIProvider>
+			<NextThemesProvider attribute='class' defaultTheme='dark'>
+				{children}
+			</NextThemesProvider>
+		</NextUIProvider>
+	)
+}
+
+export default function App() {
+	const [theme, setTheme] = useState('dark')
+	return (
+		<Providers>
+			<main className={`${theme} text-foreground bg-background`}>
+				<Header />
+				<div className='container mx-auto'>
+					<Outlet />
+				</div>
+			</main>
+		</Providers>
+	)
 }

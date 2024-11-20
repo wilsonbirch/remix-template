@@ -6,13 +6,13 @@
 		"esModuleInterop": true,
 		"module": "esnext",
 		"jsx": "react-jsx",
-		"moduleResolution": "node",
+		"moduleResolution": "bundler",
 		"resolveJsonModule": true,
 		"target": "ES2019",
 		"strict": true,
 		"baseUrl": ".",
 		"paths": {
-			"~/*": ["./app/*"]
+			"~/*": ["app/*"]
 		},
 		"forceConsistentCasingInFileNames": true,
 		"noEmit": true,
