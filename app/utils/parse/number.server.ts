@@ -1,6 +1,6 @@
 import Result, { err, ok } from 'true-myth/result'
 
-import type { Error } from '~/types/index'
+import type { Error } from '~/types/common'
 
 export function parseNumber(variable: string, number: any): Result<number | null, Error> {
 	if (number === '') {

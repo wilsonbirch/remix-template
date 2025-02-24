@@ -1,6 +1,6 @@
 import Result, { ok, err } from 'true-myth/result'
 
-import type { Error } from '~/types'
+import type { Error } from '~/types/common'
 
 export function parseEmail(email: string): Result<string, Error> {
 	const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/

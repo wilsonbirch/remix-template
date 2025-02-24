@@ -1,4 +1,4 @@
-import { Navbar, NavbarBrand, NavbarContent, NavbarItem } from '@nextui-org/navbar'
+import { Navbar, NavbarBrand, NavbarContent, NavbarItem } from "@heroui/navbar"
 import {
 	Avatar,
 	Button,
@@ -7,9 +7,9 @@ import {
 	DropdownMenu,
 	DropdownTrigger,
 	Link,
-} from '@nextui-org/react'
+} from "@heroui/react"
 
-import type { Account } from '@prisma/client'
+import type { Account } from '~/types'
 
 export type MenuItem = { label: string; key: string; to: any }
 
@@ -33,7 +33,7 @@ export function Header({ account }: HeaderInput) {
 		<Navbar isBordered>
 			<NavbarContent>
 				<NavbarBrand>
-					<p className='font-bold text-inherit'>3DF</p>
+					<p className='font-bold text-inherit'>APP</p>
 				</NavbarBrand>
 			</NavbarContent>
 
