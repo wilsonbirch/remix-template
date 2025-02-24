@@ -1,16 +1,16 @@
 import { ReactNode, useEffect, useState } from 'react'
 import { Links, Meta, Outlet, Scripts, ScrollRestoration, useNavigate } from '@remix-run/react'
-import { NextUIProvider } from '@nextui-org/react'
+import { HeroUIProvider } from '@heroui/react'
 import { ThemeProvider as NextThemesProvider } from 'next-themes'
 import { Header, Toast } from '~/components'
 import { rootLoader } from './loader/root.server'
 
 import type { LoaderFunction } from '@remix-run/node'
-import type { Account } from '@prisma/client'
+import type { Account } from '~/types'
 
-import '~/styles/tailwind.css'
-import '~/styles/main.css'
-import 'remixicon/fonts/remixicon.css'
+import '~/styles/tailwind.css?url'
+import '~/styles/main.css?url'
+import 'remixicon/fonts/remixicon.css?url'
 
 export type RootContext = {
 	setToast: React.Dispatch<React.SetStateAction<{ message: null | string; error?: boolean }>>
@@ -55,11 +55,11 @@ export function Layout({ children }: { children: React.ReactNode }) {
 export function Providers({ children }: { children: ReactNode }) {
 	const navigate = useNavigate()
 	return (
-		<NextUIProvider navigate={navigate}>
+		<HeroUIProvider navigate={navigate}>
 			<NextThemesProvider attribute='class' defaultTheme='dark'>
 				{children}
 			</NextThemesProvider>
-		</NextUIProvider>
+		</HeroUIProvider>
 	)
 }
 
@@ -89,7 +89,7 @@ export default function App() {
 	return (
 		<Providers>
 			<main className={`${theme} text-foreground bg-background`}>
-				<Header account={account} />
+				<Header account={null} />
 				<div className='container mx-auto'>
 					<Outlet context={rootContext} />
 					<Toast message={toast.message} error={toast.error} setToast={setToast} />

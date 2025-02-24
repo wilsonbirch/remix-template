@@ -1,4 +1,3 @@
-import { AuthorizationError } from 'remix-auth'
 import { authenticator } from '~/utils/auth/auth.server'
 
 export type ActionData = {

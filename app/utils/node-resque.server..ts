@@ -1,6 +1,5 @@
 import { Scheduler, Queue, Worker } from 'node-resque'
 import * as schedule from 'node-schedule'
-import { Team9Check } from './index.server'
 
 // import { createSignature } from './createSignature'
 
@@ -25,31 +24,8 @@ export async function nodeResque() {
 	let jobsToComplete = 0
 
 	const jobs: any = {
-		checkAll: async (time: string, callback: any) => {
-			await Team9Check()
-		},
-		// webhookUsage: async (env: string, callback: any) => {
-		// 	// const endpoint = 'webhooks/usage'
-		// 	// const XTOPIC = 'MONTHLY_USAGE'
-		// 	// const url = env === 'production' ? process.env.ONEREVIEW_PROD_URL : process.env.ONEREVIEW_DEV_URL
-		// 	// const body = JSON.stringify({})
-		// 	// const signature = createSignature(body)
-		// 	// await fetch(url + endpoint, {
-		// 	// 	method: 'POST',
-		// 	// 	headers: {
-		// 	// 		'Content-Type': 'application/json',
-		// 	// 		'X-Topic': XTOPIC,
-		// 	// 		'X-Hmac-SHA256': signature,
-		// 	// 	},
-		// 	// 	body: body,
-		// 	// }).then((result) => {
-		// 	// 	console.log(result)
-		// 	// 	if (result.ok) {
-		// 	// 		sendSlackMessage(`${env} ✓`, 'webhooks/usage')
-		// 	// 	} else {
-		// 	// 		sendSlackMessage(`${env} X`, 'webhooks/usage')
-		// 	// 	}
-		// 	// })
+		// checkAll: async (time: string, callback: any) => {
+		// 
 		// },
 	}
 
@@ -145,10 +121,10 @@ export async function nodeResque() {
 	test.minute = 33
 	test.tz = 'Canada/Eastern'
 
-	schedule.scheduleJob(test, async () => {
-		console.log('>>> enquing a job')
-		await queue.enqueue(process.env.REDIS_QUEUE, 'test')
-	})
+	// schedule.scheduleJob(test, async () => {
+	// 	console.log('>>> enquing a job')
+	// 	await queue.enqueue(process.env.REDIS_QUEUE, 'test')
+	// })
 
 	// ////////////////////
 	// SHUTDOWN HELPERS //

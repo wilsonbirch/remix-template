@@ -1,7 +1,7 @@
 import { useEffect, useState } from 'react'
 import { ActionData, authLoginAction } from '~/actions/auth.login.server'
 import { authLoginLoader } from '~/loader/auth.login.server'
-import { Button, Input } from '@nextui-org/react'
+import { Button, Input } from "@heroui/react"
 import { Form, useActionData, useLoaderData, useOutletContext } from '@remix-run/react'
 
 import type { ActionFunction, LoaderFunction, MetaFunction } from '@remix-run/node'

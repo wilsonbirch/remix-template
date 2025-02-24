@@ -1,7 +1,7 @@
 import Result, { err, ok } from 'true-myth/result'
-import { parseNumber } from '~/utils/parse/number'
+import { parseNumber } from '~/utils/parse/number.server'
 
-import type { Error } from '~/types/index'
+import type { Error } from '~/types/common'
 
 export function parseFormData(
 	value: FormDataEntryValue | null,

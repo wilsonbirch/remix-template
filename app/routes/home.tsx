@@ -6,7 +6,7 @@ import type { LoaderFunction, MetaFunction } from '@remix-run/node'
 import type { RootContext } from '~/root'
 
 export const meta: MetaFunction = () => {
-	return [{ title: '3DF - Home' }, { name: 'description', content: 'Welcome to Remix!' }]
+	return [{ title: 'Template - Home' }, { name: 'description', content: 'Welcome to Remix!' }]
 }
 
 export const loader: LoaderFunction = async ({ request }) => {
