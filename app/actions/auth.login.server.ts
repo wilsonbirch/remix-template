@@ -1,29 +1,30 @@
-import { authenticator } from '~/utils/auth/auth.server'
+import { authenticator } from '~/auth/auth.server'
+import { AuthorizationError } from 'remix-auth'
 
 export type ActionData = {
-	message?: string
-	code?: number
+    message?: string
+    code?: number
 }
 
 export const authLoginAction = async (request: Request) => {
-	try {
-		return await authenticator.authenticate('login', request, {
-			successRedirect: '/home',
-			throwOnError: true,
-		})
-	} catch (exception) {
-		if (exception instanceof Response) {
-			throw exception
-		}
-		if (exception instanceof AuthorizationError) {
-			return {
-				message: exception.message,
-				code: 402,
-			}
-		}
-	}
-	return {
-		message: 'Something went wrong',
-		code: 500,
-	}
+    try {
+        return await authenticator.authenticate('login', request, {
+            successRedirect: '/home',
+            throwOnError: true,
+        })
+    } catch (exception) {
+        if (exception instanceof Response) {
+            throw exception
+        }
+        if (exception instanceof AuthorizationError) {
+            return {
+                message: exception.message,
+                code: 402,
+            }
+        }
+    }
+    return {
+        message: 'Something went wrong',
+        code: 500,
+    }
 }

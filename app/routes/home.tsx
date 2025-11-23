@@ -1,31 +1,49 @@
-import { useLoaderData, useOutletContext } from '@remix-run/react'
-import { homeLoader, HomeLoaderData } from '~/loader/home.server'
+import { useLoaderData, useNavigate } from '@remix-run/react'
 import { useEffect } from 'react'
+import { homeLoader } from '~/loader/home.server'
+import { useAuth } from '~/providers'
 
-import type { LoaderFunction, MetaFunction } from '@remix-run/node'
-import type { RootContext } from '~/root'
+import type {
+    LoaderFunction,
+    LoaderFunctionArgs,
+    MetaFunction,
+} from '@remix-run/node'
+import type { LoaderData } from '~/loader/home.server'
 
 export const meta: MetaFunction = () => {
-	return [{ title: 'Template - Home' }, { name: 'description', content: 'Welcome to Remix!' }]
+    return [
+        { title: 'remix-template | Home' },
+        { name: 'home', content: 'Home page for remix-template application' },
+    ]
 }
 
-export const loader: LoaderFunction = async ({ request }) => {
-	return homeLoader(request)
+export const loader: LoaderFunction = async ({
+    request,
+}: LoaderFunctionArgs) => {
+    return homeLoader(request)
 }
 
 export default function Home() {
-	const { setAccount, setToast } = useOutletContext<RootContext>()
-	const { account } = useLoaderData<HomeLoaderData>()
+    const navigate = useNavigate()
+    const { account, nextUrl } = useLoaderData<LoaderData>()
+    const { account: authAccount, setAccount } = useAuth()
 
-	useEffect(() => {
-		if (account) {
-			setAccount(account)
-			setToast({
-				message: `Authenticated: ${account.email}`,
-				error: false,
-			})
-		}
-	}, [account])
+    useEffect(() => {
+        if (!authAccount) {
+            setAccount({
+                id: account.id,
+                email: account.email,
+                role: account.role,
+            })
+        }
+        if (nextUrl) {
+            navigate(nextUrl)
+        }
+    }, [])
 
-	return <p>Home</p>
+    return (
+        <div className="my-2">
+            <p>Home</p>
+        </div>
+    )
 }

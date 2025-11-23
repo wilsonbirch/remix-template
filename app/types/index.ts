@@ -1,2 +1,3 @@
-export type {Account}from './Account'
-export type { Error}from './common'
+export type { Account } from './Account'
+export type { Error } from './common'
+

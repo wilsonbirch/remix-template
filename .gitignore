@@ -1,5 +1,8 @@
 build
 
+# prisma (for template only, not when reused)
+prisma/migrations
+
 # Logs
 logs
 *.log
