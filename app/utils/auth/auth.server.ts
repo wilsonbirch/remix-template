@@ -1,69 +1,109 @@
-import bcryptjs from 'bcryptjs'
-import { Authenticator} from 'remix-auth'
+import { default as bcryptjs } from 'bcryptjs'
+import { Authenticator, AuthorizationError } from 'remix-auth'
 import { FormStrategy } from 'remix-auth-form'
-import { accountCreate, accountFindUniqueByEmail } from '~/dao/index.server'
+
+import { db } from '~/lib/db.server'
 import { sessionStorage } from '~/utils/auth/sessionStorage.server'
-import { parseEmail } from '../parse/index.server'
+import { parseEmail } from '~/utils/index.server'
+
+export type AuthAccount = {
+    id: number
+    uuid: string
+    email: string
+    role: 'ADMIN' | 'USER'
+}
 
 const sessionSecret = process.env.SESSION_SECRET
 
 if (!sessionSecret) {
-	throw new Error('SESSION_SECRET must be set')
+    throw new Error('SESSION_SECRET must be set')
 }
 
-const authenticator = new Authenticator<any>()
+const authenticator = new Authenticator<any>(sessionStorage)
 
 const loginFormStrategy = new FormStrategy(async ({ form }) => {
-	const email = form.get('email') as string
-	const password = form.get('password') as string
+    const email = form.get('email') as string
+    const password = form.get('password') as string
 
-	const account = await accountFindUniqueByEmail(email)
-	if (!account) {
-		// credentials not found
-		throw new Error('Incorrect credentials, please try again')
-	}
+    const account = await db.account.findUnique({
+        where: { email: email },
+    })
+    if (!account) {
+        // credentials not found
+        throw new AuthorizationError('Incorrect credentials, please try again')
+    }
 
-	const passwordsMatch = await bcryptjs.compare(password, account.password as string)
-	if (!passwordsMatch) {
-		// incorrect password
-		throw new Error('Incorrect credentials, please try again')
-	}
-	return account
+    const passwordsMatch = await bcryptjs.compare(
+        password,
+        account.password as string
+    )
+    if (!passwordsMatch) {
+        // incorrect password
+        throw new AuthorizationError('Incorrect credentials, please try again')
+    }
+    return {
+        id: account.id,
+        uuid: account.uuid,
+        email: account.email,
+        role: account.role,
+    } as AuthAccount
 })
 
 authenticator.use(loginFormStrategy, 'login')
 
 const signUpFormStrategy = new FormStrategy(async ({ form }) => {
-	const email = form.get('email') as string
-	const password = form.get('password') as string
+    const email = form.get('email') as string
+    const password = form.get('password') as string
 
-	const existingAccount = await accountFindUniqueByEmail(email)
+    const existingAccount = await db.account.findUnique({
+        where: { email: email },
+        select: {
+            id: true,
+            email: true,
+            uuid: true,
+            role: true,
+        },
+    })
 
-	if (existingAccount) {
-		// existing email
-		throw new Error('Account with that email already exists, login instead?')
-	}
+    if (existingAccount) {
+        // existing email
+        throw new AuthorizationError(
+            'Account with that email already exists, login instead?'
+        )
+    }
 
-	const isEmail = parseEmail(email)
+    const isEmail = parseEmail(email)
 
-	if (isEmail.isErr) {
-		// not a valid email
-		throw new Error('Not a valid email, try a different one')
-	}
+    if (isEmail.isErr) {
+        // not a valid email
+        throw new AuthorizationError('Not a valid email, try a different one')
+    }
 
-	if (password.length <= 7) {
-		// password length
-		throw new Error('Password must be 8 characters in length')
-	}
+    if (password.length <= 7) {
+        // password length
+        throw new AuthorizationError('Password must be 8 characters in length')
+    }
 
-	const account = await accountCreate(email, password)
+    const salt = bcryptjs.genSaltSync(10)
+    const passwordHash = bcryptjs.hashSync(password, salt)
+    const account = await db.account.create({
+        data: {
+            email: email,
+            password: passwordHash,
+        },
+    })
 
-	if (!account) {
-		// server error during signup
-		throw new Error('Something went wrong creating account')
-	}
+    if (!account) {
+        // server error during signup
+        throw new AuthorizationError('Something went wrong creating account')
+    }
 
-	return account
+    return {
+        id: account.id,
+        uuid: account.uuid,
+        email: account.email,
+        role: account.role,
+    } as AuthAccount
 })
 
 authenticator.use(signUpFormStrategy, 'signup')
