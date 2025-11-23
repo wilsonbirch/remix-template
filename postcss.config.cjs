@@ -1,7 +1,6 @@
 module.exports = {
-  plugins: {
-    '@tailwindcss/postcss': {},
-    autoprefixer: {},
-    // other plugins...
-  },
-};
+    plugins: {
+        tailwindcss: {},
+        autoprefixer: {},
+    },
+}

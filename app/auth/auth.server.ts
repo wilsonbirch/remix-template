@@ -1,10 +1,8 @@
 import { default as bcryptjs } from 'bcryptjs'
 import { Authenticator, AuthorizationError } from 'remix-auth'
 import { FormStrategy } from 'remix-auth-form'
-
 import { db } from '~/lib/db.server'
-import { sessionStorage } from '~/utils/auth/sessionStorage.server'
-import { parseEmail } from '~/utils/index.server'
+import { parseEmail, sessionStorage } from '~/utils/index.server'
 
 export type AuthAccount = {
     id: number

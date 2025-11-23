@@ -1,3 +1,5 @@
-export { Header } from './Navbar'
+export { Header } from './Header'
 export { Toast } from './Toast'
+export { ErrorBoundary } from './ErrorBoundary'
+export { Loading } from './Loading'
 // export { ThemeSwitcher } from './themeSwitcher'

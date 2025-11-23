@@ -1,100 +1,118 @@
-import { ReactNode, useEffect, useState } from 'react'
-import { Links, Meta, Outlet, Scripts, ScrollRestoration, useNavigate } from '@remix-run/react'
-import { HeroUIProvider } from '@heroui/react'
-import { ThemeProvider as NextThemesProvider } from 'next-themes'
-import { Header, Toast } from '~/components'
-import { rootLoader } from './loader/root.server'
+import {
+    Links,
+    Meta,
+    Outlet,
+    Scripts,
+    ScrollRestoration,
+    useLoaderData,
+    useRouteError,
+} from '@remix-run/react'
+import { useState } from 'react'
+import {
+    ErrorBoundary as ErrorBoundaryComponent,
+    Header,
+    Loading,
+} from '~/components'
+import { rootLoader } from '~/loader/root.server'
+import { Providers } from '~/providers'
 
 import type { LoaderFunction } from '@remix-run/node'
-import type { Account } from '~/types'
+import type { LoaderData } from '~/loader/root.server'
 
-import '~/styles/tailwind.css?url'
-import '~/styles/main.css?url'
-import 'remixicon/fonts/remixicon.css?url'
+import 'remixicon/fonts/remixicon.css'
+import '~/styles/loading.css'
+import '~/styles/main.css'
+import '~/styles/tailwind.css'
 
-export type RootContext = {
-	setToast: React.Dispatch<React.SetStateAction<{ message: null | string; error?: boolean }>>
-	setAccount: React.Dispatch<React.SetStateAction<Account | null>>
+export type RootContextAccount = {
+    id: number
+    email: string
+    role: string
 }
 
-// export const links: LinksFunction = () => [
-// 	{ rel: 'preconnect', href: 'https://fonts.googleapis.com' },
-// 	{
-// 		rel: 'preconnect',
-// 		href: 'https://fonts.gstatic.com',
-// 		crossOrigin: 'anonymous',
-// 	},
-// 	{
-// 		rel: 'stylesheet',
-// 		href: 'https://fonts.googleapis.com/css2?family=Inter:ital,opsz,wght@0,14..32,100..900;1,14..32,100..900&display=swap',
-// 	},
-// ]
+export type RootContext = {
+    setToast: React.Dispatch<
+        React.SetStateAction<{ message: null | string; error?: boolean }>
+    >
+}
 
 export const loader: LoaderFunction = async ({ request }) => {
-	return rootLoader(request)
+    return rootLoader(request)
 }
 
 export function Layout({ children }: { children: React.ReactNode }) {
-	return (
-		<html lang='en'>
-			<head>
-				<meta charSet='utf-8' />
-				<meta name='viewport' content='width=device-width, initial-scale=1' />
-				<Meta />
-				<Links />
-			</head>
-			<body>
-				{children}
-				<ScrollRestoration />
-				<Scripts />
-			</body>
-		</html>
-	)
-}
-
-export function Providers({ children }: { children: ReactNode }) {
-	const navigate = useNavigate()
-	return (
-		<HeroUIProvider navigate={navigate}>
-			<NextThemesProvider attribute='class' defaultTheme='dark'>
-				{children}
-			</NextThemesProvider>
-		</HeroUIProvider>
-	)
+    return (
+        <html lang="en">
+            <head>
+                <meta charSet="utf-8" />
+                <meta
+                    name="viewport"
+                    content="width=device-width, initial-scale=1"
+                />
+                <Meta />
+                <Links />
+            </head>
+            <body>
+                {children}
+                <ScrollRestoration />
+                <Scripts />
+            </body>
+        </html>
+    )
 }
 
 export default function App() {
-	const [account, setAccount] = useState<Account | null>(null)
-	const [theme, setTheme] = useState('dark')
-	const [toast, setToast] = useState<{
-		message: null | string
-		error?: boolean
-	}>({
-		message: null,
-		error: false,
-	})
+    const { account } = useLoaderData<LoaderData>()
+    const [theme, setTheme] = useState('dark')
 
-	const rootContext: RootContext = { setToast, setAccount }
+    return (
+        <Providers initialAccount={account}>
+            <main className={`${theme} text-foreground bg-background`}>
+                <Header />
+                <div className="container mx-auto md:px-0 px-2">
+                    <Outlet />
+                    <Loading overlay={true} />
+                </div>
+            </main>
+        </Providers>
+    )
+}
 
-	useEffect(() => {
-		if (account) {
-			setAccount(account)
-			setToast({
-				message: `Authenticated: ${account.email}`,
-				error: false,
-			})
-		}
-	}, [account])
+export function ErrorBoundary() {
+    const error = useRouteError()
+    let errorMessage: string = 'An unknown error occurred'
 
-	return (
-		<Providers>
-			<main className={`${theme} text-foreground bg-background`}>
-				<Header account={null} />
-				<div className='container mx-auto'>
-					<Outlet context={rootContext} />
-					<Toast message={toast.message} error={toast.error} setToast={setToast} />
-				</div>
-			</main>
-		</Providers>
-	)
+    if (error instanceof Error) {
+        errorMessage = error.message
+    } else if (typeof error === 'object' && error !== null) {
+        // Handle Response objects from Remix
+        if ('data' in error && error.data && typeof error.data === 'object') {
+            // @ts-ignore
+            errorMessage = error.data.message || JSON.stringify(error.data)
+        } else if ('statusText' in error) {
+            // @ts-ignore
+            errorMessage = error.statusText
+        } else if ('message' in error) {
+            // @ts-ignore
+            errorMessage = error.message
+        } else {
+            errorMessage = JSON.stringify(error)
+        }
+    } else if (typeof error === 'string') {
+        errorMessage = error
+    }
+
+    return (
+        <html>
+            <head>
+                <title>Oh no!</title>
+                <Meta />
+                <Links />
+            </head>
+            <body>
+                <ErrorBoundaryComponent code={500} message={errorMessage} />
+                <Scripts />
+            </body>
+        </html>
+    )
 }

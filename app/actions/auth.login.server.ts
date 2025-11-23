@@ -1,4 +1,5 @@
-import { authenticator } from '~/utils/auth/auth.server'
+import { authenticator } from '~/auth/auth.server'
+import { AuthorizationError } from 'remix-auth'
 
 export type ActionData = {
     message?: string
