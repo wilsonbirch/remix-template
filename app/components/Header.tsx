@@ -24,7 +24,7 @@ export function Header() {
         <Navbar isBordered>
             <NavbarContent>
                 <NavbarBrand>
-                    <Link className="font-bold text-inherit" href="/home">
+                    <Link className="font-bold text-inherit" href="/">
                         remix-template
                     </Link>
                 </NavbarBrand>
